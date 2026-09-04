@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线缆配件报价计算器</title>
+<style>
+:root{--p:#d97b29;--pd:#b8641c;--bg:#f6f4f1;--card:#fff;--t:#26221d;--m:#948b7f;--b:#e8e2d9;--g:#1a9e54;--r:#d94848}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);padding:24px 16px 60px}
+.wrap{max-width:960px;margin:0 auto}
+header{text-align:center;margin-bottom:20px}
+header h1{font-size:25px}
+header p{color:var(--m);margin-top:6px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(80,60,30,.05)}
+.card h2{font-size:16px;margin-bottom:14px}
+input,select{width:100%;padding:9px 11px;border:1px solid var(--b);border-radius:9px;font-size:14px;outline:none;background:#fdfcfa}
+input:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(217,123,41,.12);background:#fff}
+.copper{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;align-items:end}
+.field label{font-size:13px;color:var(--m);display:block;margin-bottom:6px}
+.field input{font-size:18px;font-weight:700}
+.stat{background:#faf6ef;border:1px solid var(--b);border-radius:10px;padding:9px 14px}
+.stat .k{font-size:12px;color:var(--m)}
+.stat .v{font-size:18px;font-weight:700;margin-top:2px}
+.up{color:var(--r)}.down{color:var(--g)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--b)}
+th{font-size:12px;color:var(--m);font-weight:500;background:#faf8f4}
+td input,td select{text-align:center;padding:6px 8px;font-size:13px}
+.money{font-weight:700;color:var(--pd)}
+.dim{color:var(--m)}
+.neg{color:var(--g)}
+.pos{color:var(--r)}
+.del{width:30px;height:30px;border:none;border-radius:8px;background:#fdeeee;color:var(--r);cursor:pointer;font-size:15px}
+.del:hover{background:#f8d9d9}
+.add{width:100%;margin-top:10px;padding:10px;border:1.5px dashed var(--b);background:transparent;color:var(--m);border-radius:9px;font-size:14px;cursor:pointer}
+.add:hover{border-color:var(--p);color:var(--p)}
+.total{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding:14px 16px;background:#fdf3e7;border:1px solid #f0ddc4;border-radius:10px}
+.total .amt{font-size:24px;font-weight:800;color:var(--pd)}
+.btn{padding:9px 18px;border:none;border-radius:9px;background:var(--p);color:#fff;font-size:14px;cursor:pointer}
+.btn:hover{background:var(--pd)}
+.btn.ghost{background:#fff;color:var(--pd);border:1px solid var(--p)}
+.note{font-size:12px;color:var(--m);margin-top:10px;line-height:1.8}
+@media(max-width:640px){.card{padding:14px}th,td{padding:6px 3px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🔌 线缆配件报价计算器</h1>
+  <p id="todayDate" style="font-size:15px;font-weight:600;color:var(--pd)"></p>
+  <p>基准铜价 69000 元/吨，铜价每涨跌 1000 元/吨按系数调整单价 · 输入即自动出结果</p>
+</header>
+
+<div class="card">
+  <h2>📈 今日铜价</h2>
+  <div class="copper">
+    <div class="field">
+      <label>今日铜价（元/吨）</label>
+      <input type="number" id="cuToday" value="110150" step="10">
+    </div>
+    <div class="field">
+      <label>基准铜价（元/吨）</label>
+      <input type="number" id="cuBase" value="69000" step="100">
+    </div>
+    <div class="stat"><div class="k">铜价涨跌</div><div class="v" id="cuDiff">—</div></div>
+    <div class="stat"><div class="k">调价倍数（涨跌÷1000）</div><div class="v" id="cuMult">—</div></div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <a href="https://www.changjiangyouse.com/c2/" target="_blank" style="text-decoration:none">
+      <button class="btn" type="button">🔗 打开长江有色网查今日铜价</button>
+    </a>
+    <span class="note" style="margin-top:0">查看页面上「铜」的均价，填入上方即自动重算（当前预填为 2026-09-04 长江现货铜均价 110150 元/吨）</span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📋 规格实时单价表 <span style="font-size:12px;color:var(--m);font-weight:normal">（基础单价和系数可直接改）</span></h2>
+  <table>
+    <thead><tr>
+      <th style="text-align:left">规格名称</th><th>外径</th><th>基础单价 元/米</th><th>调价系数</th><th>调价金额</th><th>实时单价 元/米</th><th>2米价（元）</th><th>3米价（元）</th><th></th>
+    </tr></thead>
+    <tbody id="specBody"></tbody>
+  </table>
+  <button class="add" id="addSpec">＋ 添加规格</button>
+</div>
+
+<div class="card">
+  <h2>💡 计算规则</h2>
+  <div class="note">
+    实时单价/米 ＝ 基础单价 ＋（今日铜价 − 69000）÷ 1000 × 调价系数<br>
+    小计 ＝ 实时单价 × 长度 × 数量<br>
+    例：今日铜价 72000，RVV3*0.75 系数 0.02 → (72000−69000)÷1000×0.02 ＝ 0.06，单价 ＝ 2.4＋0.06 ＝ 2.46 元/米，2 米 ＝ 4.92 元。<br>
+    所有修改自动保存在本机浏览器，刷新不丢失。
+  </div>
+</div>
+</div>
+
+<script>
+/* ======== 数据（默认值来自报价表图片） ======== */
+const DEFAULT_SPECS = [
+  {name:'RVV3*0.75mm²',  od:'6.5mm',  base:2.4, coef:0.02},
+  {name:'RVV3*1mm²',     od:'7.0mm',  base:3,   coef:0.03},
+  {name:'RVV3*1.5mm²',   od:'8.0mm',  base:4.5, coef:0.04},
+  {name:'RVV3*2.5mm²',   od:'10.0mm', base:7.5, coef:0.07},
+  {name:'H05VV-F 3X0.75',od:'6.5mm',  base:2.4, coef:0.02},
+  {name:'H05VV-F 3X1.0', od:'7.0mm',  base:3,   coef:0.03},
+  {name:'H05VV-F 3X1.5', od:'8.0mm',  base:4.5, coef:0.04},
+  {name:'H05VV-F 3X2.5', od:'10.0mm', base:7.5, coef:0.07}
+];
+let specs, cuToday, cuBase;
+
+/* ======== 读取 / 保存 ======== */
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem('cableQuote'));
+    if(s){ specs=s.specs||null; cuToday=s.cuToday; cuBase=s.cuBase; }
+  }catch(e){}
+  if(!Array.isArray(specs)||!specs.length) specs=JSON.parse(JSON.stringify(DEFAULT_SPECS));
+  if(cuToday==null) cuToday=110150;
+  if(cuBase==null)  cuBase=69000;
+}
+function save(){
+  localStorage.setItem('cableQuote', JSON.stringify({specs,cuToday,cuBase}));
+}
+
+/* ======== 核心计算 ======== */
+function mult(){ return (num(cuToday)-num(cuBase))/1000; }        // 调价倍数
+function adjust(s){ return mult()*num(s.coef); }                   // 调价金额
+function unitPrice(s){ return num(s.base)+adjust(s); }             // 实时单价/米
+function num(v){ const n=parseFloat(v); return isNaN(n)?0:n; }
+function f(n,d){ return n.toFixed(d==null?2:d); }
+function f3(n){ return parseFloat(n.toFixed(3)).toString(); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+/* ======== 铜价区 ======== */
+function renderCopperStats(){
+  const d=num(cuToday)-num(cuBase), m=mult();
+  const de=document.getElementById('cuDiff');
+  de.textContent=(d>=0?'+':'')+d.toLocaleString('zh-CN')+' 元/吨';
+  de.className='v '+(d>0?'up':d<0?'down':'');
+  const me=document.getElementById('cuMult');
+  me.textContent=(m>=0?'+':'')+f(m,2);
+  me.className='v '+(m>0?'up':m<0?'down':'');
+}
+
+/* ======== 规格表 ======== */
+function renderSpecs(){
+  const tb=document.getElementById('specBody');
+  tb.innerHTML='';
+  specs.forEach((s,i)=>{
+    const tr=document.createElement('tr');
+    const adj=adjust(s), up=unitPrice(s);
+    tr.innerHTML=
+      '<td style="text-align:left"><input value="'+esc(s.name)+'" data-k="name"></td>'+
+      '<td><input value="'+esc(s.od)+'" data-k="od" style="max-width:80px"></td>'+
+      '<td><input type="number" step="0.01" value="'+s.base+'" data-k="base" style="max-width:90px"></td>'+
+      '<td><input type="number" step="0.01" value="'+s.coef+'" data-k="coef" style="max-width:80px"></td>'+
+      '<td class="'+(adj>0?'pos':adj<0?'neg':'dim')+'">'+(adj>=0?'+':'')+f(adj,3)+'</td>'+
+      '<td class="money">'+f3(up)+'</td>'+
+      '<td class="money">'+f(up*2)+'</td>'+
+      '<td class="money">'+f(up*3)+'</td>'+
+      '<td><button class="del">×</button></td>';
+    tr.querySelectorAll('input').forEach(inp=>{
+      inp.oninput=()=>{
+        const k=inp.dataset.k;
+        specs[i][k]=(k==='base'||k==='coef')?inp.value:inp.value;
+        save(); refreshComputed();
+      };
+    });
+    tr.querySelector('.del').onclick=()=>{
+      specs.splice(i,1); save(); renderSpecs(); refreshComputed();
+    };
+    tb.appendChild(tr);
+  });
+}
+/* 只刷新计算列，不重建输入框（避免打字时丢焦点） */
+function refreshComputed(){
+  renderCopperStats();
+  const rows=document.getElementById('specBody').rows;
+  specs.forEach((s,i)=>{
+    if(!rows[i])return;
+    const adj=adjust(s), up=unitPrice(s);
+    const cAdj=rows[i].cells[4];
+    cAdj.textContent=(adj>=0?'+':'')+f(adj,3);
+    cAdj.className=(adj>0?'pos':adj<0?'neg':'dim');
+    rows[i].cells[5].textContent=f3(up);
+    rows[i].cells[6].textContent=f(up*2);
+    rows[i].cells[7].textContent=f(up*3);
+  });
+}
+
+/* ======== 事件绑定 ======== */
+document.getElementById('cuToday').oninput=e=>{ cuToday=e.target.value; save(); refreshComputed(); };
+document.getElementById('cuBase').oninput =e=>{ cuBase=e.target.value;  save(); refreshComputed(); };
+document.getElementById('addSpec').onclick=()=>{
+  specs.push({name:'新规格',od:'',base:0,coef:0.01}); save(); renderSpecs(); refreshComputed();
+};
+
+/* ======== 启动 ======== */
+(function showDate(){
+  const d=new Date(), week=['日','一','二','三','四','五','六'][d.getDay()];
+  document.getElementById('todayDate').textContent=
+    '📅 '+d.getFullYear()+' 年 '+(d.getMonth()+1)+' 月 '+d.getDate()+' 日　星期'+week;
+})();
+load();
+document.getElementById('cuToday').value=cuToday;
+document.getElementById('cuBase').value=cuBase;
+renderSpecs();
+refreshComputed();
+</script>
+</body>
+</html>
